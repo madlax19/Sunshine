@@ -1,4 +1,4 @@
-package com.example.android.sunshine.app.data;
+package com.example.len.sunshinelessons1.data;
 
 import android.test.AndroidTestCase;
 

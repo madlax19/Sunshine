@@ -62,11 +62,11 @@ public class ForecastFragment extends Fragment {
 
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String location = prefs.getString(getString(R.string.pref_location_key),
-                    getString(R.string.pref_location_default));
-                weatherTask.execute(location);
+            //FetchWeatherTask weatherTask = new FetchWeatherTask();
+            //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+           // String location = prefs.getString(getString(R.string.pref_location_key),
+              //      getString(R.string.pref_location_default));
+                //weatherTask.execute(location);
             updateWeather();
            //weatherTask.execute("710791");
             return true;
@@ -121,14 +121,14 @@ public class ForecastFragment extends Fragment {
         /*FetchWeatherTask weatherTask = new FetchWeatherTask();
         //weatherTask.execute("94043");
         weatherTask.execute("Lviv,ua");*/
-        this.updateWeather();
+        //this.updateWeather();
         return rootView;
 
 
     }
 
-    private void updateWeather(){
-        FetchWeatherTask weatherTask = new FetchWeatherTask();
+    private void  updateWeather(){
+        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(),mForecastAdapter);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String locations = prefs.getString(getString(R.string.pref_location_key),
                 getString(R.string.pref_location_default));
@@ -143,7 +143,7 @@ public class ForecastFragment extends Fragment {
     }
 
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+ /*   public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
@@ -331,5 +331,5 @@ public class ForecastFragment extends Fragment {
 
     }
 
-
+*/
 }
