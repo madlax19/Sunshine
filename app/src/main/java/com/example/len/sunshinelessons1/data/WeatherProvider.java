@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.len.sunshinelessons1.data;
 
 import android.annotation.TargetApi;
@@ -40,7 +41,7 @@ public class WeatherProvider extends ContentProvider {
 
     static{
         sWeatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
-        
+
         //This is an inner join which looks like
         //weather INNER JOIN location ON weather.location_id = location._id
         sWeatherByLocationSettingQueryBuilder.setTables(
@@ -85,12 +86,12 @@ public class WeatherProvider extends ContentProvider {
         }
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder
+               projection,
+               selection,
+               selectionArgs,
+               null,
+               null,
+               sortOrder
         );
     }
 
@@ -187,19 +188,37 @@ public class WeatherProvider extends ContentProvider {
             }
             // "weather"
             case WEATHER: {
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                 WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
             // "location"
             case LOCATION: {
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return retCursor;
     }
 
@@ -228,7 +247,7 @@ public class WeatherProvider extends ContentProvider {
                 if(_id >0 )
                     returnUri = WeatherContract.LocationEntry.buildLocationUri(_id);
                 else
-                    throw new SQLException("Failed to insert row into" + uri);
+                    throw new android.database.SQLException("Failed to insert row into" + uri);
                 break;
             }
 

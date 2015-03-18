@@ -35,7 +35,10 @@
 
         <provider
             android:authorities="com.example.len.sunshinelessons1"
-            android:name=".data.WeatherProvider" />
+            android:name=".data.WeatherProvider"
+
+            />
     </application>
+
 
 </manifest>

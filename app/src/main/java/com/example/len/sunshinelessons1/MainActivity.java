@@ -26,14 +26,18 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+
+    private String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
                     .commit();
         }
     }
@@ -70,11 +74,8 @@ public class MainActivity extends ActionBarActivity {
 
     private void openPreferredLocationOnMap(){
 
-        SharedPreferences sharedPrefs =
-                PreferenceManager. getDefaultSharedPreferences(this);
-        String location  = sharedPrefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
+        String location = Utility.getPreferredLocation(this);
+
 
         Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
                 .appendQueryParameter("q", location).build();
@@ -89,44 +90,20 @@ public class MainActivity extends ActionBarActivity {
             Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
         }
     }
-    /**
-     * A placeholder fragment containing a simple view.
-     */
- /*   public static class PlaceholderFragment extends Fragment {
 
-        private ArrayAdapter<String> mForecastAdapter;
+    @Override
+        protected void onResume() {
+                super.onResume();
+                String location = Utility.getPreferredLocation( this );
+                // update the location in our second pane using the fragment manager
+                        if (location != null && !location.equals(mLocation)) {
+                        ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+                       if ( null != ff ) {
+                               ff.onLocationChanged();
+                           }
+                       mLocation = location;
+                   }
+           }
 
-        public PlaceholderFragment() {
-        }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-            String[] forecastArray = {
-                    "Today -  sunny 88/63",
-                    "Tomorrow - foggy 70/40",
-                    "Weds - Cloudy 72/63",
-                    "Thurs - Asteroids 75/65",
-                    "Fri - Heave Rain 65/56",
-                    "Sat - HELP TRAPPED IN WEATHERSTATION 60/51",
-                    "Sun - sunny 80/68"
-            };
-            List<String> weekForecast = new ArrayList<String>(
-                    Arrays.asList(forecastArray));
-
-            mForecastAdapter = new ArrayAdapter<String>(
-                    getActivity(),
-            R.layout.list_item_forecast,
-            R.id.list_item_forecast_textView,
-                    weekForecast);
-
-            ListView listView = (ListView) rootView.findViewById(
-                    R.id.listView_forecast);
-            listView.setAdapter(mForecastAdapter);
-
-            return rootView;
-        }
-    }*/
 }

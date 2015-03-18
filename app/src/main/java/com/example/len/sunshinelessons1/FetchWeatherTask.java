@@ -1,18 +1,18 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2014 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.example.len.sunshinelessons1;
 
 
@@ -46,16 +46,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
-public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
+public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-    private ArrayAdapter<String> mForecastAdapter;
+
     private final Context mContext;
 
-    public FetchWeatherTask(Context context, ArrayAdapter<String> forecastAdapter) {
+    public FetchWeatherTask(Context context) {
         mContext = context;
-        mForecastAdapter = forecastAdapter;
+       // mForecastAdapter = forecastAdapter;
     }
 
     private boolean DEBUG = true;
@@ -63,7 +63,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
     /* The date/time conversion code is going to be moved outside the asynctask later,
      * so for convenience we're breaking it out into its own method now.
      */
-    private String getReadableDateString(long time){
+/*   private String getReadableDateString(long time){
         // Because the API returns a unix timestamp (measured in seconds),
         // it must be converted to milliseconds in order to be converted to valid date.
         Date date = new Date(time);
@@ -71,9 +71,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         return format.format(date).toString();
     }
 
-    /**
-     * Prepare the weather high/lows for presentation.
-     */
+
     private String formatHighLows(double high, double low) {
         // Data is fetched in Celsius by default.
         // If user prefers to see in Fahrenheit, convert the values here.
@@ -100,6 +98,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         String highLowStr = roundedHigh + "/" + roundedLow;
         return highLowStr;
     }
+    */
 
     /**
      * Helper method to handle insertion of a new location in the weather database.
@@ -111,61 +110,46 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
      * @return the row ID of the added location.
      */
     long addLocation(String locationSetting, String cityName, double lat, double lon) {
-
-        /*long locationId;
+        long locationId;
 
         Cursor locationCursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
                 new String[]{WeatherContract.LocationEntry._ID},
                 WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
                 new String[]{locationSetting},
-                null
-        );
+                null);
 
-        if (locationCursor.moveToFirst()){
+        if (locationCursor.moveToFirst()) {
             int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
             locationId = locationCursor.getLong(locationIdIndex);
-
         } else {
-
+            // Now that the content provider is set up, inserting rows of data is pretty simple.
+            // First create a ContentValues object to hold the data you want to insert.
             ContentValues locationValues = new ContentValues();
 
+            // Then add the data, along with the corresponding name of the data type,
+            // so the content provider knows what kind of value is being inserted.
             locationValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
             locationValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
             locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
             locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
 
-            Uri insertUri = mContext.getContentResolver().insert(
+            // Finally, insert location data into the database.
+            Uri insertedUri = mContext.getContentResolver().insert(
                     WeatherContract.LocationEntry.CONTENT_URI,
                     locationValues
             );
-            locationId = ContentUris.parseId(insertUri);
+
+            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+            locationId = ContentUris.parseId(insertedUri);
         }
+
         locationCursor.close();
-        return locationId;*/
-        return -1;
+        // Wait, that worked?  Yes!
+        return locationId;
     }
 
-    /*
-        Students: This code will allow the FetchWeatherTask to continue to return the strings that
-        the UX expects so that we can continue to test the application even once we begin using
-        the database.
-     */
-    String[] convertContentValuesToUXFormat(Vector<ContentValues> cvv) {
-        // return strings to keep UI functional for now
-        String[] resultStrs = new String[cvv.size()];
-        for ( int i = 0; i < cvv.size(); i++ ) {
-            ContentValues weatherValues = cvv.elementAt(i);
-            String highAndLow = formatHighLows(
-                    weatherValues.getAsDouble(WeatherEntry.COLUMN_MAX_TEMP),
-                    weatherValues.getAsDouble(WeatherEntry.COLUMN_MIN_TEMP));
-            resultStrs[i] = getReadableDateString(
-                    weatherValues.getAsLong(WeatherEntry.COLUMN_DATE)) +
-                    " - " + weatherValues.getAsString(WeatherEntry.COLUMN_SHORT_DESC) +
-                    " - " + highAndLow;
-        }
-        return resultStrs;
-    }
+
 
     /**
      * Take the String representing the complete forecast in JSON Format and
@@ -174,8 +158,8 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    private String[] getWeatherDataFromJson(String forecastJsonStr,
-                                            String locationSetting)
+    private void getWeatherDataFromJson(String forecastJsonStr,
+                                        String locationSetting)
             throws JSONException {
 
         // Now we have a String representing the complete forecast in JSON Format.
@@ -297,49 +281,25 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 cVVector.add(weatherValues);
             }
 
+            int inserted = 0;
             // add to database
             if ( cVVector.size() > 0 ) {
 
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
-                mContext.getContentResolver().bulkInsert(WeatherEntry.CONTENT_URI, cvArray);
-
-
+                inserted = mContext.getContentResolver().bulkInsert(WeatherEntry.CONTENT_URI, cvArray);
             }
 
-            // Sort order:  Ascending, by date.
-            String sortOrder = WeatherEntry.COLUMN_DATE + " ASC";
-            Uri weatherForLocationUri = WeatherEntry.buildWeatherLocationWithStartDate(
-                    locationSetting, System.currentTimeMillis());
-
-            // Students: Uncomment the next lines to display what what you stored in the bulkInsert
-
-//            Cursor cur = mContext.getContentResolver().query(weatherForLocationUri,
-//                    null, null, null, sortOrder);
-//
-//            cVVector = new Vector<ContentValues>(cur.getCount());
-//            if ( cur.moveToFirst() ) {
-//                do {
-//                   ContentValues cv = new ContentValues();
-//                    DatabaseUtils.cursorRowToContentValues(cur, cv);
-//                    cVVector.add(cv);
-//                } while (cur.moveToNext());
-//            }
-
-            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + cVVector.size() + " Inserted");
-
-            String[] resultStrs = convertContentValuesToUXFormat(cVVector);
-            return resultStrs;
+            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + "Inserted");
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-        return null;
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
 
         // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {
@@ -406,11 +366,15 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 return null;
             }
             forecastJsonStr = buffer.toString();
+            getWeatherDataFromJson(forecastJsonStr, locationQuery);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
-            return null;
+
+        } catch (JSONException e) {
+           Log.e(LOG_TAG, e.getMessage(),e);
+            e.printStackTrace();
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -424,24 +388,9 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             }
         }
 
-        try {
-            return getWeatherDataFromJson(forecastJsonStr, locationQuery);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
-        }
-        // This will only happen if there was an error getting or parsing the forecast.
+
         return null;
     }
 
-    @Override
-    protected void onPostExecute(String[] result) {
-        if (result != null && mForecastAdapter != null) {
-            mForecastAdapter.clear();
-            for(String dayForecastStr : result) {
-                mForecastAdapter.add(dayForecastStr);
-            }
-            // New data is back from the server.  Hooray!
-        }
-    }
+
 }
